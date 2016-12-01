@@ -1,0 +1,18 @@
+# OS generated
+.DS_Store
+
+# vim meta
+.vim.obsession
+
+# Temporary haskell files
+*.hi
+
+# Object files
+*.o
+
+# Header dependency files
+*.d
+
+# debug directory
+*.dSYM/
+
