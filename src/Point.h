@@ -12,12 +12,15 @@ struct point {
     point& operator = (point &&r) = default;
 
     point(T x = 0, T y = 0) : x{x}, y{y} {}
-    point operator + (const point &rhs) const { return { x + rhs.x, y + rhs.y }; }
-    point operator - (const point &rhs) const { return { x - rhs.x, y - rhs.y }; }
+    point operator + (const point &rhs) const 
+        { return { x + rhs.x, y + rhs.y }; }
+    point operator - (const point &rhs) const 
+        { return { x - rhs.x, y - rhs.y }; }
     point operator * (T k) const { return { x * k, y * k }; }
     point operator / (T k) const { return { x / k, y / k }; }
     double dot(const point &rhs) const { return x * rhs.x + y * rhs.y; }
     double det(const point &rhs) const { return x * rhs.y - y * rhs.x; }
+    double abs() const { return x * x + y * y; }
     bool operator < (const point &rhs) const 
         { return x == rhs.x ? y < rhs.y : x < rhs.x; }
     bool operator == (const point &rhs) const 

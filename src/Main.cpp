@@ -1,6 +1,5 @@
 #include "Point.h"
 #include "Line.h"
-#include "Parabola.h"
 #include "Fortunes.h"
 
 #include <cassert>
@@ -9,15 +8,14 @@
 
 void test_point();
 void test_line();
-void test_paraloba();
 
 int main(int argc, char ** argv)
 {
     test_point();
     test_line();
-    test_paraloba();
 
-    std::vector<point<int>> t { {0, -1}, {0, 2}, {-3, -2}, {1, 1} };
+    std::vector<point<double>> t 
+        { {84, 25}, {36, 11}, {97, 25}, {82, 49}, {19, 53}, {61, 67}};
     fortunes_algorithm(t);
 }
 
@@ -47,10 +45,5 @@ void test_line()
     assert(l.b == 3.5);
     assert(l.evalX(2) == 0.5);
     assert(l.evalY(0.5) == 2);
-}
-
-void test_paraloba()
-{
-    // TODO: write tests for this
 }
 
