@@ -1,22 +1,32 @@
 #include "Fortunes.h"
-#include "Parabola.h"
+#include "Event.h"
+#include "Beach_line.h"
 
-#include <limits>
 #include <algorithm>
 #include <iostream>
+#include <queue>
+#include <cassert>
 
 /* template <typename T> */
-std::vector<line> fortunes_algorithm(std::vector<point<int>> P)
+std::vector<line> fortunes_algorithm(std::vector<point<double>> P)
 {
-    static auto compareY = [] (const point<int> &l, const point<int> &r) 
-        { return l.y == r.y ? l.x < r.x : l.y > r.y; };
-    std::sort(P.begin(), P.end(), compareY);
-
+    std::priority_queue<event*,std::vector<event*>,compareEventPtr> q;
+    beach_line line (q);
     for (auto p : P)
-        std::cout << p.x << " " << p.y << std::endl;
+        q.push(new event(p.y,event::eventType::SITE,p));
 
-    std::vector<parabola> beach_line;
-    line sweep_line (0, P.front().y);
+    while (!q.empty()) {
+        auto e = q.top();
+        q.pop();
+        if (e->valid) {
+            if (e->type == event::eventType::SITE) {
+                line.insert(e->vertex, e->prio);
+            } else {
+                line.erase(e);
+            }
+        }
+        delete e;
+    }
 
     return {};
 }

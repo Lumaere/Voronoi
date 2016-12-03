@@ -6,5 +6,5 @@
 #include <vector>
 
 /* template <typename T> */
-std::vector<line> fortunes_algorithm(std::vector<point<int>> P);
+std::vector<line> fortunes_algorithm(std::vector<point<double>> P);
 
