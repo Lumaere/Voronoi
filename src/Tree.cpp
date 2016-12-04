@@ -128,7 +128,6 @@ node* tree::erase(node *arc, double y)
     node *lft = arc->lpar();
     node *rht = arc->rpar();
     add_endpoints(lft, rht, arc);
-    print_tree(root, 0);
 
     // we can only delete nodes inside the arc since 'flatness' of parabola in
     // beachline will be determined by distance from directrix so first
@@ -146,8 +145,8 @@ node* tree::erase(node *arc, double y)
         auto prev = lft->lsite;
         rht->lsite = prev;
         if (lft->parent != rht) {
-            prev->parent = arc->parent->parent;
-            arc->parent->parent->right = prev;
+            lft->left->parent = arc->parent->parent;
+            arc->parent->parent->right = lft->left;
         } else {
             rht->left = lft->left;
             lft->left->parent = rht;
@@ -176,8 +175,8 @@ node* tree::erase(node *arc, double y)
             lft->right = rht->right;
             rht->right->parent = lft;
         } else {
-            nxt->parent = arc->parent->parent;
-            arc->parent->parent->left = nxt;
+            rht->right->parent = arc->parent->parent;
+            arc->parent->parent->left = rht->right;
         }
         auto old_trace = lft->trace;
         lft->trace = new half_edge;
