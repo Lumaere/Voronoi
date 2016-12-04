@@ -7,6 +7,7 @@
 #include <queue>
 #include <cassert>
 
+
 /* template <typename T> */
 std::vector<line> fortunes_algorithm(std::vector<point<double>> P)
 {
@@ -26,6 +27,15 @@ std::vector<line> fortunes_algorithm(std::vector<point<double>> P)
             }
         }
         delete e;
+    }
+
+    for (auto e : hold) {
+        std::cout << e << " " << e->prev << " " << e->next;
+        if (e->tail)
+            std::cout << " tail: " << e->tail->coordinates;
+        if (e->head)
+            std::cout << " head: " << e->head->coordinates;
+        std::cout << std::endl;
     }
 
     return {};

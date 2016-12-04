@@ -10,12 +10,6 @@
 
 using pnt = point<double>;
 
-/* std::ostream & operator << (std::ostream &os, const pnt &x) */
-/* { */
-/*     os << '(' << x.x << ',' << x.y << ')'; */
-/*     return os; */
-/* } */
-
 void beach_line::insert(site p, double y)
 {
     if (line.empty()) {
@@ -26,6 +20,7 @@ void beach_line::insert(site p, double y)
     check_circle_event(pos, y);
     check_circle_event(pos->prev(), y);
     check_circle_event(pos->next(), y);
+    line.print_leaves();
 }
 
 void beach_line::erase(event *evt)
@@ -39,6 +34,7 @@ void beach_line::erase(event *evt)
     check_circle_event(bef, evt->prio);
     if (bef->next() != nullptr)
         check_circle_event(bef->next(), evt->prio);
+    line.print_leaves();
 }
 
 void beach_line::check_circle_event(node *arc, double y)
