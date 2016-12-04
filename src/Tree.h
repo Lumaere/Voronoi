@@ -2,6 +2,7 @@
 
 #include "DCEL.h"
 #include "Event.h"
+#include "Point.h"
 
 #include <iostream>
 
@@ -71,6 +72,7 @@ public:
 
 private:
     void print_tree(node *, int) const;
+    void add_endpoints(node *lftB, node *rhtB, node *arc) const;
     node *root;
 };
 

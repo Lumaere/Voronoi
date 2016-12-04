@@ -6,12 +6,6 @@
 #include <iostream>
 #include <iomanip>
 
-std::ostream & operator << (std::ostream &os, const pnt &x)
-{
-    os << '(' << x.x << ',' << x.y << ')';
-    return os;
-}
-
 node* node::intersection(pnt p, double y) {
     if (isLeaf) {
         // one of edge values so should be good if we reach here
@@ -102,6 +96,11 @@ node* tree::insert(pnt p, double y)
     rightE->parent = leftE;
     leftE->trace = new half_edge;
 
+    // these edges grow in 'opposite' direction tracing out the boundary
+    // between two sites
+    rightE->trace->twin = leftE->trace;
+    leftE->trace->twin = rightE->trace;
+
     if (abv->parent != nullptr) {
         leftE->parent = abv->parent;
         // set interval parents
@@ -128,18 +127,14 @@ node* tree::erase(node *arc, double y)
 {
     node *lft = arc->lpar();
     node *rht = arc->rpar();
-    // TODO: set voronoi diagram correctly
-    /* lft->trace->tail = rht->trace->tail = new vertex (arc->circle->vertex); */
+    add_endpoints(lft, rht, arc);
+    print_tree(root, 0);
 
     // we can only delete nodes inside the arc since 'flatness' of parabola in
     // beachline will be determined by distance from directrix so first
     // vertices will always go approach infinity slower
     assert(lft != nullptr && rht != nullptr);
 
-    // TODO: set vertex tail for this half-edge
-    /* join->trace = new half_edge; */
-    /* join->trace->tail = parabola_intersection(join->lsite->site, */
-    /*         join->rsite->site, y); */
     if (lft == arc->parent) {
         /*
          *          rht
@@ -157,8 +152,15 @@ node* tree::erase(node *arc, double y)
             rht->left = lft->left;
             lft->left->parent = rht;
         }
-        delete lft;
+        auto old_trace = rht->trace;
+        rht->trace = new half_edge;
+        rht->trace->prev = old_trace;
+        old_trace->next = rht->trace;
+        rht->trace->tail = old_trace->head;
+        rht->trace->twin = new half_edge (rht->trace);
+        rht->trace->twin->head = rht->trace->tail;
         delete arc;
+        delete lft;
         return prev;
     } else {
         /*
@@ -177,9 +179,31 @@ node* tree::erase(node *arc, double y)
             nxt->parent = arc->parent->parent;
             arc->parent->parent->left = nxt;
         }
-        delete rht;
+        auto old_trace = lft->trace;
+        lft->trace = new half_edge;
+        lft->trace->prev = old_trace;
+        old_trace->next = lft->trace;
+        lft->trace->tail = old_trace->head;
+        lft->trace->twin = new half_edge (rht->trace);
+        lft->trace->twin->head = lft->trace->tail;
         delete arc;
+        delete rht;
         return lft->lsite;
+    }
+}
+
+void tree::add_endpoints(node *lftB, node *rhtB, node *arc) const
+{
+    // TODO: set voronoi diagram correctly
+    if (lftB->trace->head != nullptr) {
+        rhtB->trace->head = lftB->trace->head;
+    } else if (rhtB->trace->head != nullptr) {
+        lftB->trace->head = rhtB->trace->head;
+    } else {
+        lftB->trace->head = rhtB->trace->head = 
+            lftB->trace->twin->tail = rhtB->trace->twin->tail =
+            new vertex (arc->circle->vertex);
+        lftB->trace->head->rep = lftB->trace;
     }
 }
 
