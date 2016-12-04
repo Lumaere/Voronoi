@@ -25,6 +25,8 @@ double distance(pnt p1, pnt p2)
 
 double parabola_intersection(const pnt &v1, const pnt &v2, double p)
 {
+    if (v1.y == p) return v1.x;
+    if (v2.y == p) return v2.x;
     double a1, b1, c1;
     double a2, b2, c2;
     std::tie(a1,b1,c1) = parabola_equation(v1, p);

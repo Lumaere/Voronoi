@@ -6,8 +6,11 @@
 struct half_edge;
 
 struct vertex {
+    vertex (point<double> p)
+        : coordinates{p}
+    {}
     half_edge *rep; /* rep->tail == this */
-    point<long double> coordinates;
+    point<double> coordinates;
 };
 
 struct face {

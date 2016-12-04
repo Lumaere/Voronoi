@@ -2,8 +2,7 @@
 
 #include "Site.h"
 
-#include <list>
-
+struct node;
 struct event {
     enum eventType { SITE, CIRCLE };
 
@@ -15,7 +14,7 @@ struct event {
     {}
 
     event(long double prio, eventType type, point<double> vertex, 
-            std::list<site>::iterator arc)
+            node *arc)
         : prio{prio},
           type{type},
           valid{true},
@@ -33,7 +32,7 @@ struct event {
     eventType type;
     bool valid;
     point<double> vertex;
-    std::list<site>::iterator arc;
+    node *arc;
 };
 
 struct compareEventPtr {
