@@ -15,7 +15,7 @@ int main(int argc, char ** argv)
     test_line();
 
     std::vector<point<double>> t 
-        { {84, 25}, {36, 11}, {97, 25}, {82, 49}, {19, 53}, {61, 67}};
+        { {84, 125}, {36, 111}, {97, 125}, {82, 149}, {19, 153}, {61, 167}};
     fortunes_algorithm(t);
 }
 
