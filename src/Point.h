@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 template <typename T>
 struct point {
     T x, y;
@@ -26,4 +28,11 @@ struct point {
     bool operator == (const point &rhs) const 
         { return x - rhs.x == 0 && y - rhs.y == 0; }
 };
+
+template <typename T>
+std::ostream & operator << (std::ostream &os, const point<T> &x)
+{
+    os << '(' << x.x << ',' << x.y << ')';
+    return os;
+}
 
