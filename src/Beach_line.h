@@ -4,9 +4,9 @@
 #include "Site.h"
 #include "Event.h"
 #include "Math.h"
+#include "Tree.h"
 
 #include <queue>
-#include <list>
 
 class beach_line {
 public:
@@ -26,11 +26,11 @@ private:
         std::vector<event*>,compareEventPtr> &pq; 
     // structure to represent beach line -> can switch to better DS such as
     // tree or skip list
-    std::list<site> line;
+    tree line;
 
     static constexpr double INF = std::numeric_limits<double>::infinity();
 
-    void check_circle_event(std::list<site>::iterator arc, double y) const;
+    void check_circle_event(node *arc, double y) const;
     bool below_beachline(const point<double> &p, double y) const;
 };
 

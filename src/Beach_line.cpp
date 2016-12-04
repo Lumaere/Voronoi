@@ -10,37 +10,22 @@
 
 using pnt = point<double>;
 
-std::ostream & operator << (std::ostream &os, const pnt &x)
-{
-    os << '(' << x.x << ',' << x.y << ')';
-    return os;
-}
+/* std::ostream & operator << (std::ostream &os, const pnt &x) */
+/* { */
+/*     os << '(' << x.x << ',' << x.y << ')'; */
+/*     return os; */
+/* } */
 
 void beach_line::insert(site p, double y)
 {
     if (line.empty()) {
-        line.push_back(p);
+        line.insert(p, y);
         return;
-    } 
-    for (auto it = line.begin(); it != line.end(); ++it) {
-        double left = it == line.begin() ? -INF : 
-            parabola_intersection(*std::next(it,-1), *it, y);
-        double right = std::next(it) == line.end() ? INF:
-            parabola_intersection(*it, *std::next(it), y);
-        if (left > p.x || p.x > right) continue;
-        // found arc above
-        line.insert(it, *it);            // break arc above in two
-        auto arc = line.insert(it, p);   // insert new arc in between
-
-        check_circle_event(arc, p.y);
-        check_circle_event(std::next(arc,-1), p.y);
-        check_circle_event(std::next(arc,1), p.y);
-        break;
     }
-    std::cout << "beach_line: ";
-    for (auto s : line)
-        std::cout << s << ' ';
-    std::cout << std::endl;
+    auto pos = line.insert(p, y);
+    check_circle_event(pos, y);
+    check_circle_event(pos->prev(), y);
+    check_circle_event(pos->next(), y);
 }
 
 void beach_line::erase(event *evt)
@@ -49,54 +34,46 @@ void beach_line::erase(event *evt)
 
     std::cout << "voronoi vertex: " << evt->vertex.x << " " 
               << evt->vertex.y << std::endl;
+    auto bef = line.erase(evt->arc, evt->prio);
 
-    auto nxt = line.erase(evt->arc);
-
-    // check for new circle events
-    if (nxt != line.begin())
-        check_circle_event(std::next(nxt,-1), evt->prio);
-    if (std::next(nxt) != line.end())
-        check_circle_event(std::next(nxt), evt->prio);
-
-    std::cout << "beach_line_after: ";
-    for (auto s : line)
-        std::cout << s << ' ';
-    std::cout << std::endl;
+    check_circle_event(bef, evt->prio);
+    if (bef->next() != nullptr)
+        check_circle_event(bef->next(), evt->prio);
 }
 
-void beach_line::check_circle_event(std::list<site>::iterator arc, double y)
+void beach_line::check_circle_event(node *arc, double y)
     const
 {
     // set circle event of it to false if any since original circle is now
     // nonempty -> false alarm
-    if (arc->e != nullptr && arc->e->prio != y)
-        arc->e->valid = false;
+    if (arc->circle != nullptr && arc->circle->prio != y)
+        arc->circle->valid = false;
 
     // no circle event possible if less than 3 arcs around position
-    if (arc == line.begin() || std::next(arc) == line.end())
+    if (arc->prev() == nullptr || arc->next() == nullptr)
         return;
 
     pnt cent; bool good;
     std::tie(cent,good) = 
-        circumcenter(*std::next(arc,-1), *arc, *std::next(arc));
+        circumcenter(arc->prev()->site, arc->site, arc->next()->site);
     if (!good) return;
+    double r = distance(cent, arc->site);
     if (below_beachline(cent, y)) return;
-    double r = distance(cent, *arc);
-    /* std::cout << "CIRC: " << *std::next(arc,-1) << " " << *arc */ 
-    /*     << " " << *std::next(arc) << " " << cent + pnt(0,r) << std::endl; */
     if (cent.y + r > y) {
+    /* std::cout << "CIRC: " << cent.x << " " << cent.y + r << " " */ 
+    /*     << arc->prev()->site.x << " " << arc->prev()->site.y << " " */
+    /*     << arc->site.x << " " << arc->site.y << " " */
+    /*     << arc->next()->site.x << " " << arc->next()->site.y << std::endl; */
         // new circle event detected
-        arc->e = new event(cent.y + r, event::eventType::CIRCLE, cent, arc);
-        pq.push(arc->e);
+        arc->circle = new event(cent.y + r, 
+                event::eventType::CIRCLE, cent, arc);
+        pq.push(arc->circle);
     }
 }
 
 
 bool beach_line::below_beachline(const point<double> &p, double y) const
 {
-    for (const auto &para : line)
-        if (below_parabola(para, y, p))
-            return true;
-    return false;
+    return line.below(p, y);
 }
 
