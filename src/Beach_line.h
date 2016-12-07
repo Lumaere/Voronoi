@@ -7,6 +7,7 @@
 #include "Tree.h"
 
 #include <queue>
+#include <utility>
 
 class beach_line {
 public:
@@ -17,8 +18,15 @@ public:
         : pq{pq}
     {}
 
+    // handle site event
     void insert(site p, double y);
+
+    // handle circle event
     void erase(event *evt);
+
+    // put bounding box and clean up edges
+    // input: bottom left and top right corners of bounding box
+    void clean_up(const std::pair<pnt,pnt> &);
 
 private:
     // store reference to main event list

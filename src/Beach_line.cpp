@@ -20,21 +20,22 @@ void beach_line::insert(site p, double y)
     check_circle_event(pos, y);
     check_circle_event(pos->prev(), y);
     check_circle_event(pos->next(), y);
-    line.print_leaves();
 }
 
 void beach_line::erase(event *evt)
 {
     // TODO: set edges appropriately and mark voronoi vertex
 
-    std::cout << "voronoi vertex: " << evt->vertex.x << " " 
-              << evt->vertex.y << std::endl;
     auto bef = line.erase(evt->arc, evt->prio);
 
     check_circle_event(bef, evt->prio);
     if (bef->next() != nullptr)
         check_circle_event(bef->next(), evt->prio);
-    line.print_leaves();
+}
+
+void beach_line::clean_up(const std::pair<pnt,pnt> &)
+{
+
 }
 
 void beach_line::check_circle_event(node *arc, double y)
@@ -42,8 +43,11 @@ void beach_line::check_circle_event(node *arc, double y)
 {
     // set circle event of it to false if any since original circle is now
     // nonempty -> false alarm
-    if (arc->circle != nullptr && arc->circle->prio != y)
+    if (arc->circle != nullptr && arc->circle->prio != y) {
         arc->circle->valid = false;
+        // set this to nullptr because bad reference after deletion
+        arc->circle = nullptr; 
+    }
 
     // no circle event possible if less than 3 arcs around position
     if (arc->prev() == nullptr || arc->next() == nullptr)
@@ -56,10 +60,6 @@ void beach_line::check_circle_event(node *arc, double y)
     double r = distance(cent, arc->site);
     if (below_beachline(cent, y)) return;
     if (cent.y + r > y) {
-    /* std::cout << "CIRC: " << cent.x << " " << cent.y + r << " " */ 
-    /*     << arc->prev()->site.x << " " << arc->prev()->site.y << " " */
-    /*     << arc->site.x << " " << arc->site.y << " " */
-    /*     << arc->next()->site.x << " " << arc->next()->site.y << std::endl; */
         // new circle event detected
         arc->circle = new event(cent.y + r, 
                 event::eventType::CIRCLE, cent, arc);
