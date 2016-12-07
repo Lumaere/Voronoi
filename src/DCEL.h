@@ -3,36 +3,66 @@
 #include "Point.h"
 
 #include <vector>
+#include <iostream>
+#include <map>
+#include <cassert>
 
 /* does not support holes in faces */
 struct half_edge;
+struct vertex;
+
+extern std::vector<vertex*> holdV;
+extern std::vector<half_edge*> holdE;
 
 struct vertex {
     vertex (point<double> p)
         : coordinates{p}
-    {}
+    {
+        holdV.push_back(this);
+    }
     half_edge *rep; /* rep->tail == this */
     point<double> coordinates;
 };
 
 struct face {
-    half_edge *rep; /* rep->left == this */
-};
-extern std::vector<half_edge*> hold;
-
-struct half_edge {
-    half_edge()
-        : prev{nullptr}, next{nullptr}, twin{nullptr},
-          tail{nullptr}, head{nullptr}, left{nullptr}
+    face (point<double> p)
+        : site{p}
     {
-        hold.push_back(this);
+        assert(hash.find(p) == hash.end());
+        hash.insert(std::make_pair(p,this));
     }
-    /* create half_edge from its twin */
-    half_edge(half_edge *twin)
-        : half_edge()
+    half_edge *rep;     /* rep->left == this */
+    point<double> site;
+
+    static face* face_of(point<double> p)
     {
-        this->twin = twin;
-        twin->twin = this;
+        /* throw error if non existing */
+        return hash.at(p);
+    }
+private:
+    static std::map<point<double>,face*> hash;
+};
+
+// create half_edge with factory
+struct half_edge {
+    // sets prev edge for this - assume 'n' has geq information than this
+    void set_prev(half_edge *p)
+    {
+        assert(this->prev == nullptr);
+        assert(p->next == nullptr);
+        this->prev = p;
+        p->next = this;
+        this->left = this->prev->left;
+    }
+
+    // similar to set_prev
+    void set_next(half_edge *n)
+    {
+        assert(this->next == nullptr);
+        assert(this->twin->twin == this);
+        this->next = n;
+        n->prev = this;
+        this->left = this->next->left;
     }
 
     half_edge *prev; /* prev->next == this */
@@ -40,7 +70,21 @@ struct half_edge {
     half_edge *twin; /* twin->twin == this */
     vertex *tail;    /* twin->next->tail == tail &&
                         prev->twin->tail == tail */
-    vertex *head;
     face *left;      /* prev->left == left && next->left == left */
+private:
+    half_edge()
+        : prev{nullptr}, 
+          next{nullptr}, 
+          twin{nullptr},
+          tail{nullptr}, 
+          left{nullptr}
+    {
+        holdE.push_back(this);
+    }
+    friend half_edge* half_edge_factory();
 };
+
+// create half_edge with its twin
+// half_edge's always have a counterpart in our graphs
+half_edge* half_edge_factory();
 

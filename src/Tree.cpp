@@ -72,11 +72,14 @@ node* tree::insert(pnt p, double y)
 {
     if (root == nullptr) {
         root = new node(p);
+        root->first = true;
         return root;
     }
     // find arc above the site
     node *abv = root->intersection(p, y);
 
+    // set circle event to false since new site appeared in interior of said
+    // circle event
     if (abv->circle != nullptr) {
         abv->circle->valid = false;
     }
@@ -90,16 +93,23 @@ node* tree::insert(pnt p, double y)
     node *rightE = new node (nxt, splitR, nxt, splitR);
     nxt->parent = rightE;
     splitR->parent = rightE;
-    rightE->trace = new half_edge;
     node *leftE = new node (splitL, rightE, splitL, nxt);
     splitL->parent = leftE;
     rightE->parent = leftE;
-    leftE->trace = new half_edge;
 
-    // these edges grow in 'opposite' direction tracing out the boundary
+    // these edges grow in 'opposite' ccw direction tracing out the boundary
     // between two sites
-    rightE->trace->twin = leftE->trace;
-    leftE->trace->twin = rightE->trace;
+    rightE->trace = half_edge_factory();
+    leftE->trace = rightE->trace->twin;
+    /* inserting a new point so new face */
+    rightE->trace->left = new face (p);
+    if (abv->first) {
+        /* new face because no edges previously to mark */
+        abv->first = false;
+        leftE->trace->left = new face (abv->site);
+    } else {
+        leftE->trace->left = face::face_of(abv->site);
+    }
 
     if (abv->parent != nullptr) {
         leftE->parent = abv->parent;
@@ -127,7 +137,7 @@ node* tree::erase(node *arc, double y)
 {
     node *lft = arc->lpar();
     node *rht = arc->rpar();
-    add_endpoints(lft, rht, arc);
+    node *ret;
 
     // we can only delete nodes inside the arc since 'flatness' of parabola in
     // beachline will be determined by distance from directrix so first
@@ -151,16 +161,10 @@ node* tree::erase(node *arc, double y)
             rht->left = lft->left;
             lft->left->parent = rht;
         }
-        auto old_trace = rht->trace;
-        rht->trace = new half_edge;
-        rht->trace->prev = old_trace;
-        old_trace->next = rht->trace;
-        rht->trace->tail = old_trace->head;
-        rht->trace->twin = new half_edge (rht->trace);
-        rht->trace->twin->head = rht->trace->tail;
+        rht->trace = add_endpoints(lft, rht, arc);
         delete arc;
         delete lft;
-        return prev;
+        ret = prev;
     } else {
         /*
          * lft
@@ -178,32 +182,66 @@ node* tree::erase(node *arc, double y)
             rht->right->parent = arc->parent->parent;
             arc->parent->parent->left = rht->right;
         }
-        auto old_trace = lft->trace;
-        lft->trace = new half_edge;
-        lft->trace->prev = old_trace;
-        old_trace->next = lft->trace;
-        lft->trace->tail = old_trace->head;
-        lft->trace->twin = new half_edge (rht->trace);
-        lft->trace->twin->head = lft->trace->tail;
+        lft->trace = add_endpoints(lft, rht, arc);
         delete arc;
         delete rht;
-        return lft->lsite;
+        ret = lft->lsite;
     }
+    return ret;
 }
 
-void tree::add_endpoints(node *lftB, node *rhtB, node *arc) const
+half_edge* tree::add_endpoints(node *lftB, node *rhtB, node *arc)
 {
-    // TODO: set voronoi diagram correctly
-    if (lftB->trace->head != nullptr) {
-        rhtB->trace->head = lftB->trace->head;
-    } else if (rhtB->trace->head != nullptr) {
-        lftB->trace->head = rhtB->trace->head;
+    /*
+     *  ^\ fromP> ^/
+     *   \\ <toP //
+     *    \\    //
+     *     \v  /v
+     *       ^|
+     *       || <- ret->twin
+     * ret-> ||
+     *       |v
+     */
+
+    half_edge *toP, *fromP;
+    std::tie(toP, fromP) = match_face(lftB->trace, rhtB->trace);
+    assert(toP->left == fromP->left);
+    assert(toP->next == nullptr);
+    toP->next = fromP;
+    fromP->prev = toP;
+    // new voronoi vertex at this point
+    assert(fromP->tail == nullptr && toP->twin->tail == nullptr);
+    fromP->tail = toP->twin->tail = new vertex (arc->circle->vertex);
+    // set representative
+    fromP->tail->rep = fromP;
+
+    // continue edge & twin from new intersection and set pointers
+    half_edge *ret = half_edge_factory();
+    ret->set_next(toP->twin);
+    ret->twin->set_prev(fromP->twin);
+    ret->twin->tail = fromP->tail;
+    return ret;
+}
+
+std::pair<half_edge*,half_edge*> tree::match_face(half_edge *l, half_edge *r)
+{
+    half_edge *toP, *fromP;
+    if (l->left == r->left) {
+        toP = l;
+        fromP = r;
+    } else if (l->twin->left == r->left) {
+        toP = l->twin;
+        fromP = r;
+    } else if (l->left == r->twin->left) {
+        toP = l;
+        fromP = r->twin;
     } else {
-        lftB->trace->head = rhtB->trace->head = 
-            lftB->trace->twin->tail = rhtB->trace->twin->tail =
-            new vertex (arc->circle->vertex);
-        lftB->trace->head->rep = lftB->trace;
+        assert(l->twin->left == r->twin->left);
+        toP = l->twin;
+        fromP = r->twin;
     }
+    assert(toP->left == fromP->left);
+    return {toP, fromP};
 }
 
 void tree::print_tree(node *cur, int indent) const

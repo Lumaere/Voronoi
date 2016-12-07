@@ -12,6 +12,7 @@ struct node {
     // leaf node constructor
     node(pnt p) 
         : isLeaf{true},
+          first{false},
           parent{nullptr},
           left{nullptr},
           right{nullptr},
@@ -23,6 +24,7 @@ struct node {
     // internal node constructor
     node(node *l, node *r, node *ls, node *rs) 
         : isLeaf{false},
+          first{false},
           parent{nullptr},
           left{l},
           right{r},
@@ -39,6 +41,7 @@ struct node {
     node* next() const;
 
     bool isLeaf;
+    bool first; /* tmp sol */
     node *parent;
 
     /* internal node information */
@@ -71,8 +74,10 @@ public:
         { return root->below(p, y); }
 
 private:
-    void print_tree(node *, int) const;
-    void add_endpoints(node *lftB, node *rhtB, node *arc) const;
     node *root;
+
+    void print_tree(node *, int) const;
+    half_edge* add_endpoints(node *lftB, node *rhtB, node *arc);
+    std::pair<half_edge*,half_edge*> match_face(half_edge* l, half_edge *r);
 };
 
