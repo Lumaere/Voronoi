@@ -6,14 +6,14 @@ struct node;
 struct event {
     enum eventType { SITE, CIRCLE };
 
-    event(long double prio, eventType type, point<double> vertex)
+    event(double prio, eventType type, point<double> vertex)
         : prio{prio},
           type{type},
           valid{true},
           vertex{vertex}
     {}
 
-    event(long double prio, eventType type, point<double> vertex, 
+    event(double prio, eventType type, point<double> vertex, 
             node *arc)
         : prio{prio},
           type{type},
@@ -28,7 +28,7 @@ struct event {
         return vertex.x < r.vertex.x;
     }
 
-    long double prio;
+    double prio;
     eventType type;
     bool valid;
     point<double> vertex;
