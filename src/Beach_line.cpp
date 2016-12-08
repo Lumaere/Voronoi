@@ -9,6 +9,7 @@
 #include <tuple>
 
 using pnt = point<double>;
+int cnt = 1;
 
 void beach_line::insert(site p, double y)
 {
@@ -20,22 +21,32 @@ void beach_line::insert(site p, double y)
     check_circle_event(pos, y);
     check_circle_event(pos->prev(), y);
     check_circle_event(pos->next(), y);
+    /* ++cnt; */
+    if (cnt >= 40 && cnt <= 50) {
+        line.print_leaves();
+        std::cout << std::endl;
+    }
 }
 
 void beach_line::erase(event *evt)
 {
     // TODO: set edges appropriately and mark voronoi vertex
-
+    /* std::cout << "voronoi vertex: " << evt->vertex << std::endl; */
     auto bef = line.erase(evt->arc, evt->prio);
 
     check_circle_event(bef, evt->prio);
     if (bef->next() != nullptr)
         check_circle_event(bef->next(), evt->prio);
+    /* ++cnt; */
+    if (cnt >= 40 && cnt <= 50) {
+        line.print_leaves();
+        std::cout << std::endl;
+    }
 }
 
 void beach_line::clean_up(const std::pair<pnt,pnt> &)
 {
-
+    line.print_leaves();
 }
 
 void beach_line::check_circle_event(node *arc, double y)
@@ -58,18 +69,11 @@ void beach_line::check_circle_event(node *arc, double y)
         circumcenter(arc->prev()->site, arc->site, arc->next()->site);
     if (!good) return;
     double r = distance(cent, arc->site);
-    if (below_beachline(cent, y)) return;
     if (cent.y + r > y) {
         // new circle event detected
         arc->circle = new event(cent.y + r, 
                 event::eventType::CIRCLE, cent, arc);
         pq.push(arc->circle);
     }
-}
-
-
-bool beach_line::below_beachline(const point<double> &p, double y) const
-{
-    return line.below(p, y);
 }
 
