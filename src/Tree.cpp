@@ -1,5 +1,5 @@
-#include "Tree.h"
-#include "Math.h"
+#include "tree.h"
+#include "math/math.h"
 
 #include <stdexcept>
 #include <cassert>

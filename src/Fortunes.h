@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Line.h"
-#include "Point.h"
+#include "math/line.h"
+#include "math/point.h"
 
 #include <vector>
 

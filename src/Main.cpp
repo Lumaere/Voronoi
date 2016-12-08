@@ -1,5 +1,5 @@
-#include "Point.h"
-#include "Line.h"
+#include "math/point.h"
+#include "math/line.h"
 #include "Fortunes.h"
 
 #include <cassert>
@@ -18,7 +18,7 @@ int main(int argc, char ** argv)
 {
     test_point();
     test_line();
-    test_voronoi2();
+    test_voronoi3();
 }
 
 void test_voronoi1()

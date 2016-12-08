@@ -1,8 +1,8 @@
 #pragma once
 
-#include "DCEL.h"
-#include "Event.h"
-#include "Point.h"
+#include "DCEL/DCEL.h"
+#include "math/point.h"
+#include "event.h"
 
 #include <iostream>
 

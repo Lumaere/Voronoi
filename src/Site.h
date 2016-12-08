@@ -1,7 +1,5 @@
 #pragma once
 
-#include "DCEL.h"
-
 struct event;
 
 struct site {

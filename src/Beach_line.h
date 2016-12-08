@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Point.h"
-#include "Site.h"
-#include "Event.h"
-#include "Math.h"
-#include "Tree.h"
+#include "math/point.h"
+#include "math/math.h"
+#include "site.h"
+#include "event.h"
+#include "tree.h"
 
 #include <queue>
 #include <utility>

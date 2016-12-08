@@ -1,5 +1,5 @@
-#include "Beach_line.h"
-#include "Event.h"
+#include "beach_line.h"
+#include "event.h"
 
 #include <iostream>
 #include <cmath>

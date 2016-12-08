@@ -1,6 +1,6 @@
 #include "Fortunes.h"
-#include "Event.h"
-#include "Beach_line.h"
+#include "event.h"
+#include "beach_line.h"
 
 #include <algorithm>
 #include <iostream>
@@ -43,7 +43,8 @@ std::vector<line> fortunes_algorithm(std::vector<point<double>> P)
     double dy = (bounds.second.y - bounds.first.y + 1) / 5.0;
     bounds.first.x -= dx; bounds.first.y -= dy;
     bounds.second.x -= dx; bounds.second.y -= dy;
-    line.clean_up(bounds);
+    /* line.clean_up(bounds); */
+    std::cout << holdE.size() << " " << holdV.size() << std::endl;
 
     for (auto e : holdE) {
         if (e->prev) {
