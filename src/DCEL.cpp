@@ -13,4 +13,24 @@ half_edge* half_edge_factory()
     return ret;
 }
 
+std::pair<half_edge*,half_edge*> match_face(half_edge *l, half_edge *r)
+{
+    half_edge *toP, *fromP;
+    if (l->left == r->left) {
+        toP = l;
+        fromP = r;
+    } else if (l->twin->left == r->left) {
+        toP = l->twin;
+        fromP = r;
+    } else if (l->left == r->twin->left) {
+        toP = l;
+        fromP = r->twin;
+    } else {
+        assert(l->twin->left == r->twin->left);
+        toP = l->twin;
+        fromP = r->twin;
+    }
+    assert(toP->left == fromP->left);
+    return {toP, fromP};
+}
 

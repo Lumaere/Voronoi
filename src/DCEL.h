@@ -3,9 +3,9 @@
 #include "Point.h"
 
 #include <vector>
-#include <iostream>
 #include <map>
 #include <cassert>
+#include <utility>
 
 /* does not support holes in faces */
 struct half_edge;
@@ -87,4 +87,9 @@ private:
 // create half_edge with its twin
 // half_edge's always have a counterpart in our graphs
 half_edge* half_edge_factory();
+
+// input: two half_edges with either themselves or twins pointing to a common
+//        face
+// returns: pair of half_edges that point to common face
+std::pair<half_edge*,half_edge*> match_face(half_edge *l, half_edge *r);
 
