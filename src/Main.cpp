@@ -18,7 +18,7 @@ int main(int argc, char ** argv)
 {
     test_point();
     test_line();
-    test_voronoi3();
+    test_voronoi2();
 }
 
 void test_voronoi1()
@@ -54,7 +54,7 @@ void test_voronoi2()
 void test_voronoi3()
 {
     std::vector<point<double>> t;
-    std::ifstream in ("tmp.txt");
+    std::ifstream in ("input/tmp.txt");
     double x, y;
     while (in >> x >> y)
         t.emplace_back(x, y);

@@ -39,6 +39,5 @@ private:
     static constexpr double INF = std::numeric_limits<double>::infinity();
 
     void check_circle_event(node *arc, double y) const;
-    bool below_beachline(const point<double> &p, double y) const;
 };
 
