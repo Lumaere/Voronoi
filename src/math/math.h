@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Point.h"
+#include "point.h"
 
 #include <utility>
 #include <tuple>

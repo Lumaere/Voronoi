@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Point.h"
+#include "../math/point.h"
 
 #include <vector>
 #include <map>
