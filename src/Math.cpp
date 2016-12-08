@@ -2,10 +2,11 @@
 
 #include <cmath>
 
-static constexpr double EPS = 1e-11;
-
 std::pair<pnt,bool> circumcenter(pnt a, pnt b, pnt c)
 {
+    // check if upside down right turn
+    if ((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y) < 0)
+        return {{}, false};
     // translate to origin
     c = c - a;
     b = b - a;
@@ -40,11 +41,16 @@ double parabola_intersection(const pnt &v1, const pnt &v2, double p)
     }
 }
 
-bool below_parabola(const pnt &focus, double directrix, const pnt &p)
+double parabola_val(const pnt &focus, double directrix, double x)
 {
     double a, b, c;
     std::tie(a,b,c) = parabola_equation(focus,directrix);
-    return p.y <= a*p.x*p.x + b*p.x + c;
+    return a*x*x + b*x + c;
+}
+
+bool below_parabola(const pnt &focus, double directrix, const pnt &p)
+{
+    return p.y < parabola_val(focus, directrix, p.x);
 }
 
 std::tuple<double,double,double> parabola_equation(
