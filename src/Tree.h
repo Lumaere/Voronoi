@@ -34,7 +34,6 @@ struct node {
           
 
     node* intersection(pnt p, double y);
-    bool below(const pnt &p, double y) const;
     node* lpar() const;
     node* rpar() const;
     node* prev() const;
@@ -68,15 +67,11 @@ public:
     void print_leaves() const;
     bool empty() const { return root == nullptr; }
 
-    /* do a binary search for the beachline y-value for x-value given by p and
-     * current sweepline y */
-    bool below(const pnt &p, double y) const
-        { return root->below(p, y); }
-
 private:
     node *root;
 
     void print_tree(node *, int) const;
+    node* degenerate_insertion(node*, node*, pnt, double);
     half_edge* add_endpoints(node *lftB, node *rhtB, node *arc);
     std::pair<half_edge*,half_edge*> match_face(half_edge* l, half_edge *r);
 };

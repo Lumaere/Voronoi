@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 
@@ -17,22 +18,6 @@ node* node::intersection(pnt p, double y) {
             return right->intersection(p, y);
         else
             return left->intersection(p, y);
-    }
-}
-
-bool node::below(const pnt &p, double y) const {
-    if (isLeaf) {
-        assert(prev() == nullptr ||
-                parabola_intersection(prev()->site, site, y) <= p.x);
-        assert(next() == nullptr ||
-                parabola_intersection(site, next()->site, y) >= p.x);
-        return below_parabola(site, y, p);
-    } else {
-        double h = parabola_intersection(lsite->site, rsite->site, y);
-        if (h < p.x)
-            return right->below(p, y);
-        else
-            return left->below(p, y);
     }
 }
 
@@ -82,6 +67,21 @@ node* tree::insert(pnt p, double y)
     // circle event
     if (abv->circle != nullptr) {
         abv->circle->valid = false;
+        abv->circle = nullptr;
+    }
+
+    // check for degenerate case
+    if (abv->parent != nullptr) {
+        if (abv->prev() != nullptr) {
+            auto tmp = degenerate_insertion(abv->prev(), abv, p, y);
+            if (tmp != nullptr)
+                return tmp;
+        }
+        if (abv->next() != nullptr) {
+            auto tmp = degenerate_insertion(abv, abv->next(), p, y);
+            if (tmp != nullptr)
+                return tmp;
+        }
     }
 
     // divide old arc and insert new one in between
@@ -133,6 +133,61 @@ node* tree::insert(pnt p, double y)
     return nxt;
 }
 
+node* tree::degenerate_insertion(node *abv, node *nxt, pnt p, double y)
+{
+    double inter = parabola_intersection(abv->site, nxt->site, y);
+    if (std::fabs(inter - p.x) > EPS)
+        return nullptr;
+
+    node *sep = abv->rpar();
+    face *lft = face::face_of(abv->site);
+    half_edge *from = sep->trace->left == lft ? sep->trace : sep->trace->twin;
+
+    assert(sep->trace->left == lft || sep->trace->twin->left == lft);
+    assert(from->tail == nullptr && from->twin->tail != nullptr);
+    assert(from->left && from->twin->left);
+
+    // do some bookkeeping on the tree
+    node *tmp = sep->right;
+    node *new_site = new node (p);
+    sep->right = new node (new_site, tmp, new_site, nxt);
+    sep->rsite = new_site;
+    new_site->parent = sep->right;
+    sep->right->parent = sep;
+    tmp->parent = sep->right;
+
+    // set voronoi diagram appropriately
+    /*
+     *         ^|
+     *         || <-from->twin
+     *   from> ||
+     *         |v
+     *        VERT
+     *       ^/  ^\
+     * lnxt>//    \\ <rnxt
+     *     //      \\
+     *    /v        \v
+     */
+    from->tail = new vertex (pnt(inter, parabola_val(abv->site, y, inter)));
+    half_edge *lnxt = half_edge_factory();
+    half_edge *rnxt = half_edge_factory();
+    lnxt->set_next(from);
+    rnxt->set_prev(from->twin);
+    rnxt->tail = from->tail;
+    lnxt->twin->tail = from->tail;
+    lnxt->twin->left = new face (p);
+    rnxt->twin->set_next(lnxt->twin);
+
+    sep->trace = lnxt;
+    sep->right->trace = rnxt;
+    if (sep->circle) {
+        sep->circle->valid = false;
+        sep->circle = nullptr;
+    }
+    
+    return new_site;
+}
+
 node* tree::erase(node *arc, double y)
 {
     node *lft = arc->lpar();
@@ -143,6 +198,7 @@ node* tree::erase(node *arc, double y)
     // beachline will be determined by distance from directrix so first
     // vertices will always go approach infinity slower
     assert(lft != nullptr && rht != nullptr);
+    assert(arc->circle->valid);
 
     if (lft == arc->parent) {
         /*
@@ -271,6 +327,8 @@ void tree::print_leaves() const {
         cur = cur->left;
     while (cur != nullptr) {
         std::cout << cur->site << ' ';
+        if (cur->circle)
+            std::cout << "collapsing at " << cur->circle->vertex << ' ';
         cur = cur->next();
     }
     std::cout << std::endl;
