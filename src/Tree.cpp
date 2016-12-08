@@ -56,9 +56,14 @@ node* node::next() const {
 node* tree::insert(pnt p, double y)
 {
     if (root == nullptr) {
+        lo = p.y;
         root = new node(p);
-        root->first = true;
+        new face(p);
         return root;
+    } else if (p.y == lo) {
+        // insertion on same y-value as first element: no parabola exists abv
+        init_insertion(p, y);
+        return nullptr;
     }
     // find arc above the site
     node *abv = root->intersection(p, y);
@@ -89,27 +94,16 @@ node* tree::insert(pnt p, double y)
     node *splitR = new node (abv->site);
     node *nxt = new node (p);
 
-    // bookkeeping and new arcs
+    // new arcs
     node *rightE = new node (nxt, splitR, nxt, splitR);
-    nxt->parent = rightE;
-    splitR->parent = rightE;
     node *leftE = new node (splitL, rightE, splitL, nxt);
-    splitL->parent = leftE;
-    rightE->parent = leftE;
 
     // these edges grow in 'opposite' ccw direction tracing out the boundary
-    // between two sites
     rightE->trace = half_edge_factory();
     leftE->trace = rightE->trace->twin;
-    /* inserting a new point so new face */
+    // inserting a new point so new face
     rightE->trace->left = new face (p);
-    if (abv->first) {
-        /* new face because no edges previously to mark */
-        abv->first = false;
-        leftE->trace->left = new face (abv->site);
-    } else {
-        leftE->trace->left = face::face_of(abv->site);
-    }
+    leftE->trace->left = face::face_of(abv->site);
 
     if (abv->parent != nullptr) {
         leftE->parent = abv->parent;
@@ -133,28 +127,70 @@ node* tree::insert(pnt p, double y)
     return nxt;
 }
 
+void tree::init_insertion(pnt p, double y)
+{
+    // insertion on same y-value as first element: no parabola exists abv
+    if (root->isLeaf) {
+        node *lft, *rht;
+        if (root->site.x < p.x) {
+            lft = root;
+            rht = new node (p);
+        } else {
+            lft = new node (p);
+            rht = root;
+        }
+        node *par = new node (lft, rht, lft, rht);
+        par->trace = half_edge_factory();
+        par->trace->left = new face(std::min(p, root->site));
+        par->trace->twin->left = face::face_of(std::max(p, root->site));
+        root = par;
+    } else {
+        node *cur = root;
+        while (cur->left != nullptr)
+            cur = cur->left;
+        // we originally sorted so same y's have x's from hi->lo
+        assert(cur->site.x > p.x);
+        assert(cur->rpar() == cur->parent);
+        node *nxt = new node (p);
+        node *tmp = cur->parent;
+        node *par = new node (nxt, cur, nxt, cur);
+        par->parent = tmp;
+        tmp->left = par;
+        par->trace = half_edge_factory();
+        par->trace->left = new face(p);
+        par->trace->twin->left = face::face_of(cur->site);
+    }
+}
+
 node* tree::degenerate_insertion(node *abv, node *nxt, pnt p, double y)
 {
     double inter = parabola_intersection(abv->site, nxt->site, y);
     if (std::fabs(inter - p.x) > EPS)
         return nullptr;
 
+    if (abv->circle) {
+        abv->circle->valid = false;
+        abv->circle = nullptr;
+    }
+    if (nxt->circle) {
+        nxt->circle->valid = false;
+        nxt->circle = nullptr;
+    }
+
     node *sep = abv->rpar();
     face *lft = face::face_of(abv->site);
     half_edge *from = sep->trace->left == lft ? sep->trace : sep->trace->twin;
 
     assert(sep->trace->left == lft || sep->trace->twin->left == lft);
-    assert(from->tail == nullptr && from->twin->tail != nullptr);
+    assert(from->tail == nullptr);
     assert(from->left && from->twin->left);
 
     // do some bookkeeping on the tree
     node *tmp = sep->right;
     node *new_site = new node (p);
     sep->right = new node (new_site, tmp, new_site, nxt);
-    sep->rsite = new_site;
-    new_site->parent = sep->right;
     sep->right->parent = sep;
-    tmp->parent = sep->right;
+    sep->rsite = new_site;
 
     // set voronoi diagram appropriately
     /*
@@ -180,11 +216,8 @@ node* tree::degenerate_insertion(node *abv, node *nxt, pnt p, double y)
 
     sep->trace = lnxt;
     sep->right->trace = rnxt;
-    if (sep->circle) {
-        sep->circle->valid = false;
-        sep->circle = nullptr;
-    }
-    
+    assert(new_site->next() == nxt && new_site->prev() == abv);
+    assert(abv->next() == new_site && nxt->prev() == new_site);
     return new_site;
 }
 
@@ -277,27 +310,6 @@ half_edge* tree::add_endpoints(node *lftB, node *rhtB, node *arc)
     ret->twin->set_prev(fromP->twin);
     ret->twin->tail = fromP->tail;
     return ret;
-}
-
-std::pair<half_edge*,half_edge*> tree::match_face(half_edge *l, half_edge *r)
-{
-    half_edge *toP, *fromP;
-    if (l->left == r->left) {
-        toP = l;
-        fromP = r;
-    } else if (l->twin->left == r->left) {
-        toP = l->twin;
-        fromP = r;
-    } else if (l->left == r->twin->left) {
-        toP = l;
-        fromP = r->twin;
-    } else {
-        assert(l->twin->left == r->twin->left);
-        toP = l->twin;
-        fromP = r->twin;
-    }
-    assert(toP->left == fromP->left);
-    return {toP, fromP};
 }
 
 void tree::print_tree(node *cur, int indent) const

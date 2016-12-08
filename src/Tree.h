@@ -12,7 +12,6 @@ struct node {
     // leaf node constructor
     node(pnt p) 
         : isLeaf{true},
-          first{false},
           parent{nullptr},
           left{nullptr},
           right{nullptr},
@@ -24,13 +23,15 @@ struct node {
     // internal node constructor
     node(node *l, node *r, node *ls, node *rs) 
         : isLeaf{false},
-          first{false},
           parent{nullptr},
           left{l},
           right{r},
           lsite{ls},
           rsite{rs}
-    {}
+    {
+        l->parent = this;
+        r->parent = this;
+    }
           
 
     node* intersection(pnt p, double y);
@@ -40,7 +41,6 @@ struct node {
     node* next() const;
 
     bool isLeaf;
-    bool first; /* tmp sol */
     node *parent;
 
     /* internal node information */
@@ -58,7 +58,7 @@ struct node {
 
 class tree {
 public:
-    tree() : root{nullptr} {}
+    tree() : root{nullptr}, lo{0} {}
 
     node* insert(pnt p, double y);
     node* erase(node *arc, double y);
@@ -69,10 +69,11 @@ public:
 
 private:
     node *root;
+    double lo;
 
     void print_tree(node *, int) const;
+    void init_insertion(pnt, double);
     node* degenerate_insertion(node*, node*, pnt, double);
     half_edge* add_endpoints(node *lftB, node *rhtB, node *arc);
-    std::pair<half_edge*,half_edge*> match_face(half_edge* l, half_edge *r);
 };
 
