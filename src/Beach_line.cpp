@@ -18,6 +18,8 @@ void beach_line::insert(site p, double y)
         return;
     }
     auto pos = line.insert(p, y);
+    // case where circle event is impossible
+    if (pos == nullptr) return;
     check_circle_event(pos, y);
     check_circle_event(pos->prev(), y);
     check_circle_event(pos->next(), y);
