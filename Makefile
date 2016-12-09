@@ -12,20 +12,20 @@ RFLAGS = -O3
 
 SOURCE_FILES = $(wildcard src/*.cpp) $(wildcard src/*/*.cpp)
 
-OBJ = objs
+OBJ = obj
 SRC = src
+BIN = bin
 EXECUTABLE_NAME = voronoi
 
 # Hopefully standard implementation below
 
 OBJECT_FILES = $(addprefix $(OBJ)/,$(SOURCE_FILES:%.cpp=%.o))
-EXECUTABLE_FILES = $(EXECUTABLE_NAME)
+EXECUTABLE_FILES = $(addprefix $(BIN)/,$(EXECUTABLE_NAME))
 
 build: $(EXECUTABLE_FILES)
 
 $(EXECUTABLE_FILES): $(OBJECT_FILES)
 		$(LD) $(DFLAGS) $(LFLAGS) $^ -o $@
-		dsymutil $(EXECUTABLE_NAME)
 
 $(OBJ)/src/%.o: $(SRC)/%.cpp
 		$(CC) $(DFLAGS) $(CFLAGS) -c -MMD $< -o $@
