@@ -19,11 +19,6 @@ std::pair<pnt,bool> circumcenter(pnt a, pnt b, pnt c)
     return {ret + a, true};
 }
 
-double distance(pnt p1, pnt p2)
-{
-    return sqrt((p1-p2).abs());
-}
-
 double parabola_intersection(const pnt &v1, const pnt &v2, double p)
 {
     if (v1.y == p) return v1.x;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <cmath>
 
 template <typename T>
 struct point {
@@ -34,5 +35,11 @@ std::ostream & operator << (std::ostream &os, const point<T> &x)
 {
     os << '(' << x.x << ',' << x.y << ')';
     return os;
+}
+
+template <typename T>
+T distance(const point<T> &p1, const point<T> &p2)
+{
+    return sqrt((p1 - p2).abs());
 }
 
