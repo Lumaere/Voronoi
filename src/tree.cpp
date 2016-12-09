@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 
+// move node struct to a different file?
 node* node::intersection(pnt p, double y) {
     if (isLeaf) {
         // one of edge values so should be good if we reach here
@@ -52,6 +53,7 @@ node* node::next() const {
     node *tmp = rpar();
     return tmp == nullptr ? nullptr : tmp->rsite;
 }
+
 
 node* tree::insert(pnt p, double y)
 {

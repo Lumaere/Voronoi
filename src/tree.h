@@ -55,7 +55,11 @@ struct node {
     point<double> site;
 };
 
-
+/* 
+ * have not implementated any form of tree balancing 
+ *  note: if data is distributed somewhat evenly across the plane, the tree
+ *        will likely self-balance to a certain degree
+ */
 class tree {
 public:
     tree() : root{nullptr}, lo{0} {}
