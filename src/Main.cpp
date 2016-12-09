@@ -1,11 +1,14 @@
 #include "math/point.h"
 #include "math/line.h"
+#include "DCEL/DCEL.h"
 #include "Fortunes.h"
+#include "kruskal.h"
 
 #include <cassert>
-#include <cstdio>
 #include <vector>
+#include <set>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 void test_point();
@@ -26,6 +29,20 @@ void test_voronoi1()
     std::vector<point<double>> t 
         { {84, 125}, {36, 111}, {97, 125}, {82, 149}, {19, 153}, {61, 167}};
     fortunes_algorithm(t);
+    for (auto e : holdE)
+        if (e->left->rep == nullptr)
+            e->left->rep = e;
+    std::vector<std::pair<point<double>,point<double>>> out;
+    std::set<half_edge*> s;
+    for (auto e : holdE) {
+        if (s.count(e)) continue;
+        if (s.count(e->twin)) continue;
+        out.emplace_back(e->left->site, e->twin->left->site);
+        s.insert(e);
+        s.insert(e->twin);
+    }
+    kruskal solver;
+    std::cout << solver.solve(out) << std::endl;
 }
 
 void test_voronoi2()
@@ -49,6 +66,20 @@ void test_voronoi2()
         {181, 187}, {92,  74}, {85, 113}, {141,  90}, {52, 177}
     };
     fortunes_algorithm(t);
+    for (auto e : holdE)
+        if (e->left->rep == nullptr)
+            e->left->rep = e;
+    std::vector<std::pair<point<double>,point<double>>> out;
+    std::set<half_edge*> s;
+    for (auto e : holdE) {
+        if (s.count(e)) continue;
+        if (s.count(e->twin)) continue;
+        out.emplace_back(e->left->site, e->twin->left->site);
+        s.insert(e);
+        s.insert(e->twin);
+    }
+    kruskal solver;
+    std::cout << std::setprecision(2) << solver.solve(out) << std::endl;
 }
 
 void test_voronoi3()
@@ -61,6 +92,20 @@ void test_voronoi3()
     std::sort(t.begin(), t.end());
     t.erase(std::unique(t.begin(), t.end()), t.end());
     fortunes_algorithm(t);
+    for (auto e : holdE)
+        if (e->left->rep == nullptr)
+            e->left->rep = e;
+    std::vector<std::pair<point<double>,point<double>>> out;
+    std::set<half_edge*> s;
+    for (auto e : holdE) {
+        if (s.count(e)) continue;
+        if (s.count(e->twin)) continue;
+        out.emplace_back(e->left->site, e->twin->left->site);
+        s.insert(e);
+        s.insert(e->twin);
+    }
+    kruskal solver;
+    std::cout << std::fixed << std::setprecision(2) << solver.solve(out) << std::endl;
 }
 
 void test_point()
