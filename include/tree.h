@@ -1,9 +1,9 @@
 #pragma once
 
-#include "DCEL/DCEL.h"
-#include "math/point.h"
-#include "event.h"
-#include "node.h"
+#include <DCEL/DCEL.h>
+#include <math/point.h>
+#include <event.h>
+#include <node.h>
 
 using pnt = point<double>;
 

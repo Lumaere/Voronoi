@@ -1,8 +1,8 @@
-#include "math/point.h"
-#include "math/line.h"
-#include "DCEL/DCEL.h"
-#include "Fortunes.h"
-#include "kruskal.h"
+#include <math/point.h>
+#include <math/line.h>
+#include <DCEL/DCEL.h>
+#include <Fortunes.h>
+#include <kruskal.h>
 
 #include <cassert>
 #include <vector>
@@ -21,7 +21,7 @@ int main(int argc, char ** argv)
 {
     test_point();
     test_line();
-    test_voronoi1();
+    test_voronoi3();
 }
 
 void test_voronoi1()
@@ -66,6 +66,7 @@ void test_voronoi2()
         {181, 187}, {92,  74}, {85, 113}, {141,  90}, {52, 177}
     };
     auto v = fortunes_algorithm(t);
+    /* v->print_dcel({0,0}, {200,200}); */
     std::vector<DCEL::half_edge*> holdE;
     std::tie(holdE,std::ignore,std::ignore) = v->to_vector();
     std::vector<std::pair<point<double>,point<double>>> out;

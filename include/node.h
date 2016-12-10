@@ -1,7 +1,7 @@
 #pragma once
 
-#include "DCEL/DCEL.h"
-#include "math/point.h"
+#include <DCEL/DCEL.h>
+#include <math/point.h>
 
 struct event; // forward declaration of event
 

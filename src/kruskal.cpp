@@ -1,4 +1,4 @@
-#include "kruskal.h"
+#include <kruskal.h>
 
 #include <map>
 #include <tuple>

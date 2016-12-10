@@ -1,8 +1,8 @@
 #pragma once
 
-#include "math/line.h"
-#include "math/point.h"
-#include "DCEL/DCEL.h"
+#include <math/line.h>
+#include <math/point.h>
+#include <DCEL/DCEL.h>
 
 #include <vector>
 
