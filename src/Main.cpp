@@ -21,19 +21,18 @@ int main(int argc, char ** argv)
 {
     test_point();
     test_line();
-    test_voronoi3();
+    test_voronoi1();
 }
 
 void test_voronoi1()
 {
     std::vector<point<double>> t 
         { {84, 125}, {36, 111}, {97, 125}, {82, 149}, {19, 153}, {61, 167}};
-    fortunes_algorithm(t);
-    for (auto e : holdE)
-        if (e->left->rep == nullptr)
-            e->left->rep = e;
+    auto v = fortunes_algorithm(t);
+    std::vector<DCEL::half_edge*> holdE;
+    std::tie(holdE,std::ignore,std::ignore) = v->to_vector();
     std::vector<std::pair<point<double>,point<double>>> out;
-    std::set<half_edge*> s;
+    std::set<DCEL::half_edge*> s;
     for (auto e : holdE) {
         if (s.count(e)) continue;
         if (s.count(e->twin)) continue;
@@ -43,6 +42,7 @@ void test_voronoi1()
     }
     kruskal solver;
     std::cout << solver.solve(out) << std::endl;
+    delete v;
 }
 
 void test_voronoi2()
@@ -65,12 +65,11 @@ void test_voronoi2()
         {174,  66}, {88,  69}, {146, 121}, {106, 119}, {153, 192},
         {181, 187}, {92,  74}, {85, 113}, {141,  90}, {52, 177}
     };
-    fortunes_algorithm(t);
-    for (auto e : holdE)
-        if (e->left->rep == nullptr)
-            e->left->rep = e;
+    auto v = fortunes_algorithm(t);
+    std::vector<DCEL::half_edge*> holdE;
+    std::tie(holdE,std::ignore,std::ignore) = v->to_vector();
     std::vector<std::pair<point<double>,point<double>>> out;
-    std::set<half_edge*> s;
+    std::set<DCEL::half_edge*> s;
     for (auto e : holdE) {
         if (s.count(e)) continue;
         if (s.count(e->twin)) continue;
@@ -79,7 +78,8 @@ void test_voronoi2()
         s.insert(e->twin);
     }
     kruskal solver;
-    std::cout << std::setprecision(2) << solver.solve(out) << std::endl;
+    std::cout << solver.solve(out) << std::endl;
+    delete v;
 }
 
 void test_voronoi3()
@@ -91,12 +91,11 @@ void test_voronoi3()
         t.emplace_back(x, y);
     std::sort(t.begin(), t.end());
     t.erase(std::unique(t.begin(), t.end()), t.end());
-    fortunes_algorithm(t);
-    for (auto e : holdE)
-        if (e->left->rep == nullptr)
-            e->left->rep = e;
+    auto v = fortunes_algorithm(t);
+    std::vector<DCEL::half_edge*> holdE;
+    std::tie(holdE,std::ignore,std::ignore) = v->to_vector();
     std::vector<std::pair<point<double>,point<double>>> out;
-    std::set<half_edge*> s;
+    std::set<DCEL::half_edge*> s;
     for (auto e : holdE) {
         if (s.count(e)) continue;
         if (s.count(e->twin)) continue;
@@ -105,7 +104,8 @@ void test_voronoi3()
         s.insert(e->twin);
     }
     kruskal solver;
-    std::cout << std::fixed << std::setprecision(2) << solver.solve(out) << std::endl;
+    std::cout << solver.solve(out) << std::endl;
+    delete v;
 }
 
 void test_point()
