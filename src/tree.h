@@ -48,7 +48,7 @@ struct node {
     node *right;
     node *lsite;
     node *rsite;
-    half_edge *trace;
+    DCEL::half_edge *trace;
 
     /* leaf node information */
     event *circle;
@@ -62,7 +62,11 @@ struct node {
  */
 class tree {
 public:
-    tree() : root{nullptr}, lo{0} {}
+    tree(DCEL *diagram) 
+        : root{nullptr}, 
+          lo{0},
+          diagram{diagram}
+    {}
 
     node* insert(pnt p, double y);
     node* erase(node *arc, double y);
@@ -75,9 +79,11 @@ private:
     node *root;
     double lo;
 
+    DCEL* diagram;
+
     void print_tree(node *, int) const;
     void init_insertion(pnt, double);
     node* degenerate_insertion(node*, node*, pnt, double);
-    half_edge* add_endpoints(node *lftB, node *rhtB, node *arc);
+    DCEL::half_edge* add_endpoints(node *lftB, node *rhtB, node *arc);
 };
 

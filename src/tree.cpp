@@ -60,7 +60,7 @@ node* tree::insert(pnt p, double y)
     if (root == nullptr) {
         lo = p.y;
         root = new node(p);
-        new face(p);
+        diagram->face_factory(p);
         return root;
     } else if (p.y == lo) {
         // insertion on same y-value as first element: no parabola exists abv
@@ -101,11 +101,11 @@ node* tree::insert(pnt p, double y)
     node *leftE = new node (splitL, rightE, splitL, nxt);
 
     // these edges grow in 'opposite' ccw direction tracing out the boundary
-    rightE->trace = half_edge_factory();
+    rightE->trace = diagram->half_edge_factory();
     leftE->trace = rightE->trace->twin;
     // inserting a new point so new face
-    rightE->trace->left = new face (p);
-    leftE->trace->left = face::face_of(abv->site);
+    rightE->trace->left = diagram->face_factory(p);
+    leftE->trace->left = diagram->face_of(abv->site);
 
     if (abv->parent != nullptr) {
         leftE->parent = abv->parent;
@@ -142,9 +142,9 @@ void tree::init_insertion(pnt p, double y)
             rht = root;
         }
         node *par = new node (lft, rht, lft, rht);
-        par->trace = half_edge_factory();
-        par->trace->left = new face(std::min(p, root->site));
-        par->trace->twin->left = face::face_of(std::max(p, root->site));
+        par->trace = diagram->half_edge_factory();
+        par->trace->left = diagram->face_factory(std::min(p, root->site));
+        par->trace->twin->left = diagram->face_of(std::max(p, root->site));
         root = par;
     } else {
         node *cur = root;
@@ -158,9 +158,9 @@ void tree::init_insertion(pnt p, double y)
         node *par = new node (nxt, cur, nxt, cur);
         par->parent = tmp;
         tmp->left = par;
-        par->trace = half_edge_factory();
-        par->trace->left = new face(p);
-        par->trace->twin->left = face::face_of(cur->site);
+        par->trace = diagram->half_edge_factory();
+        par->trace->left = diagram->face_factory(p);
+        par->trace->twin->left = diagram->face_of(cur->site);
     }
 }
 
@@ -179,9 +179,10 @@ node* tree::degenerate_insertion(node *abv, node *nxt, pnt p, double y)
         nxt->circle = nullptr;
     }
 
-    node *sep = abv->rpar();
-    face *lft = face::face_of(abv->site);
-    half_edge *from = sep->trace->left == lft ? sep->trace : sep->trace->twin;
+    node* sep = abv->rpar();
+    DCEL::face* lft = diagram->face_of(abv->site);
+    DCEL::half_edge* from = sep->trace->left == lft ? 
+        sep->trace : sep->trace->twin;
 
     assert(sep->trace->left == lft || sep->trace->twin->left == lft);
     assert(from->tail == nullptr);
@@ -206,14 +207,15 @@ node* tree::degenerate_insertion(node *abv, node *nxt, pnt p, double y)
      *     //      \\
      *    /v        \v
      */
-    from->tail = new vertex (pnt(inter, parabola_val(abv->site, y, inter)));
-    half_edge *lnxt = half_edge_factory();
-    half_edge *rnxt = half_edge_factory();
+    from->tail = diagram->vertex_factory(
+            pnt(inter, parabola_val(abv->site, y, inter)));
+    DCEL::half_edge *lnxt = diagram->half_edge_factory();
+    DCEL::half_edge *rnxt = diagram->half_edge_factory();
     lnxt->set_next(from);
     rnxt->set_prev(from->twin);
     rnxt->tail = from->tail;
     lnxt->twin->tail = from->tail;
-    lnxt->twin->left = new face (p);
+    lnxt->twin->left = diagram->face_factory(p);
     rnxt->twin->set_next(lnxt->twin);
 
     sep->trace = lnxt;
@@ -281,7 +283,7 @@ node* tree::erase(node *arc, double y)
     return ret;
 }
 
-half_edge* tree::add_endpoints(node *lftB, node *rhtB, node *arc)
+DCEL::half_edge* tree::add_endpoints(node *lftB, node *rhtB, node *arc)
 {
     /*
      *  ^\ fromP> ^/
@@ -294,7 +296,7 @@ half_edge* tree::add_endpoints(node *lftB, node *rhtB, node *arc)
      *       |v
      */
 
-    half_edge *toP, *fromP;
+    DCEL::half_edge *toP, *fromP;
     std::tie(toP, fromP) = match_face(lftB->trace, rhtB->trace);
     assert(toP->left == fromP->left);
     assert(toP->next == nullptr);
@@ -302,12 +304,13 @@ half_edge* tree::add_endpoints(node *lftB, node *rhtB, node *arc)
     fromP->prev = toP;
     // new voronoi vertex at this point
     assert(fromP->tail == nullptr && toP->twin->tail == nullptr);
-    fromP->tail = toP->twin->tail = new vertex (arc->circle->vertex);
+    fromP->tail = toP->twin->tail = 
+        diagram->vertex_factory(arc->circle->vertex);
     // set representative
     fromP->tail->rep = fromP;
 
     // continue edge & twin from new intersection and set pointers
-    half_edge *ret = half_edge_factory();
+    DCEL::half_edge *ret = diagram->half_edge_factory();
     ret->set_next(toP->twin);
     ret->twin->set_prev(fromP->twin);
     ret->twin->tail = fromP->tail;
