@@ -8,8 +8,7 @@
 #include <cassert>
 
 
-/* template <typename T> */
-std::vector<line> fortunes_algorithm(std::vector<point<double>> P)
+DCEL* fortunes_algorithm(std::vector<point<double>> P)
 {
     static constexpr double INF = std::numeric_limits<double>::infinity();
     std::priority_queue<event*,std::vector<event*>,compareEventPtr> q;
@@ -43,22 +42,6 @@ std::vector<line> fortunes_algorithm(std::vector<point<double>> P)
     double dy = (bounds.second.y - bounds.first.y + 1) / 5.0;
     bounds.first.x -= dx; bounds.first.y -= dy;
     bounds.second.x -= dx; bounds.second.y -= dy;
-    std::cerr << holdE.size() << " " << holdV.size() << std::endl;
-
-    for (auto e : holdE) {
-        if (e->prev) {
-            assert(e->prev->next == e);
-            assert(e->prev->left == e->left);
-        }
-        if (e->next) {
-            assert(e->next->prev == e);
-            assert(e->next->left == e->left);
-        }
-        assert(e->twin->twin == e);
-        if (e->tail)
-            assert(e->twin->next->tail == e->tail &&
-                    e->prev->twin->tail == e->tail);
-    }
 
     /* for (auto e : holdE) { */
     /*     if (e->tail && e->twin->tail) { */
@@ -73,6 +56,6 @@ std::vector<line> fortunes_algorithm(std::vector<point<double>> P)
     /*     } */
     /* } */
 
-    return {};
+    return line.diagram;
 }
 
