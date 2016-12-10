@@ -3,57 +3,9 @@
 #include "DCEL/DCEL.h"
 #include "math/point.h"
 #include "event.h"
-
-#include <iostream>
+#include "node.h"
 
 using pnt = point<double>;
-
-struct node {
-    // leaf node constructor
-    node(pnt p) 
-        : isLeaf{true},
-          parent{nullptr},
-          left{nullptr},
-          right{nullptr},
-          lsite{nullptr},
-          rsite{nullptr},
-          circle{nullptr},
-          site{p}
-    {} 
-    // internal node constructor
-    node(node *l, node *r, node *ls, node *rs) 
-        : isLeaf{false},
-          parent{nullptr},
-          left{l},
-          right{r},
-          lsite{ls},
-          rsite{rs}
-    {
-        l->parent = this;
-        r->parent = this;
-    }
-          
-
-    node* intersection(pnt p, double y);
-    node* lpar() const;
-    node* rpar() const;
-    node* prev() const;
-    node* next() const;
-
-    bool isLeaf;
-    node *parent;
-
-    /* internal node information */
-    node *left;
-    node *right;
-    node *lsite;
-    node *rsite;
-    DCEL::half_edge *trace;
-
-    /* leaf node information */
-    event *circle;
-    point<double> site;
-};
 
 /* 
  * have not implementated any form of tree balancing 

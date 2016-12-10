@@ -1,59 +1,9 @@
 #include "tree.h"
 #include "math/math.h"
 
-#include <stdexcept>
 #include <cassert>
-#include <cmath>
 #include <iostream>
 #include <iomanip>
-
-// move node struct to a different file?
-node* node::intersection(pnt p, double y) {
-    if (isLeaf) {
-        // one of edge values so should be good if we reach here
-        // base case (?)
-        return this;
-    } else {
-        double h = parabola_intersection(lsite->site, rsite->site, y);
-        if (h < p.x)
-            return right->intersection(p, y);
-        else
-            return left->intersection(p, y);
-    }
-}
-
-node* node::lpar() const {
-    if (!isLeaf)
-        throw std::runtime_error("Only valid for leaf nodes");
-    node *cur = parent;
-    while (cur != nullptr) {
-        if (cur->rsite == this) return cur;
-        cur = cur->parent;
-    }
-    return nullptr;
-}
-
-node* node::rpar() const {
-    if (!isLeaf)
-        throw std::runtime_error("Only valid for leaf nodes");
-    node *cur = parent;
-    while (cur != nullptr) {
-        if (cur->lsite == this) return cur;
-        cur = cur->parent;
-    }
-    return nullptr;
-}
-
-node* node::prev() const {
-    node *tmp = lpar();
-    return tmp == nullptr ? nullptr : tmp->lsite;
-}
-
-node* node::next() const {
-    node *tmp = rpar();
-    return tmp == nullptr ? nullptr : tmp->rsite;
-}
-
 
 node* tree::insert(pnt p, double y)
 {
@@ -79,23 +29,18 @@ node* tree::insert(pnt p, double y)
 
     // check for degenerate case
     if (abv->parent != nullptr) {
-        if (abv->prev() != nullptr) {
-            auto tmp = degenerate_insertion(abv->prev(), abv, p, y);
-            if (tmp != nullptr)
-                return tmp;
-        }
-        if (abv->next() != nullptr) {
-            auto tmp = degenerate_insertion(abv, abv->next(), p, y);
-            if (tmp != nullptr)
-                return tmp;
-        }
+        auto tmp = degenerate_insertion(abv->prev(), abv, p, y);
+        if (tmp != nullptr)
+            return tmp;
+        tmp = degenerate_insertion(abv, abv->next(), p, y);
+        if (tmp != nullptr)
+            return tmp;
     }
 
     // divide old arc and insert new one in between
     node *splitL = new node (abv->site);
     node *splitR = new node (abv->site);
     node *nxt = new node (p);
-
     // new arcs
     node *rightE = new node (nxt, splitR, nxt, splitR);
     node *leftE = new node (splitL, rightE, splitL, nxt);
@@ -166,6 +111,8 @@ void tree::init_insertion(pnt p, double y)
 
 node* tree::degenerate_insertion(node *abv, node *nxt, pnt p, double y)
 {
+    if (abv == nullptr || nxt == nullptr)
+        return nullptr;
     double inter = parabola_intersection(abv->site, nxt->site, y);
     if (std::fabs(inter - p.x) > EPS)
         return nullptr;
