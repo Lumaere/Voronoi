@@ -5,7 +5,6 @@
 #include <vector>
 #include <map>
 #include <tuple>
-#include <cassert>
 #include <utility>
 
 class DCEL {
@@ -35,6 +34,11 @@ public:
 
     // add edge representatives for faces
     void fix_faces();
+
+    // print edges with with this->tail and this->twin->tail defined
+    // (i.e. segments) and such that both tails are within the rectangle
+    // defined by lower_left to upper_right
+    void print_dcel(point<double> lower_left, point<double> upper_right) const;
 
     // custom destructor to free edges
     ~DCEL();
