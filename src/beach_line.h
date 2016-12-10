@@ -15,7 +15,9 @@ public:
 
     beach_line(std::priority_queue<event*,
             std::vector<event*>,compareEventPtr> &pq)
-        : pq{pq}
+        : diagram{new DCEL},
+          pq{pq},
+          line(diagram)
     {}
 
     // handle site event
@@ -24,10 +26,11 @@ public:
     // handle circle event
     void erase(event *evt);
 
-    // put bounding box and clean up edges
+    // TODO: put bounding box and clean up edges
     // input: bottom left and top right corners of bounding box
     void clean_up(const std::pair<pnt,pnt> &);
 
+    DCEL* diagram;
 private:
     // store reference to main event list
     std::priority_queue<event*,

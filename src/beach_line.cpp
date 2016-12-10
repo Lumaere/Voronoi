@@ -17,33 +17,20 @@ void beach_line::insert(site p, double y)
         line.insert(p, y);
         return;
     }
-    auto pos = line.insert(p, y);
+    node* pos = line.insert(p, y);
     // case where circle event is impossible
     if (pos == nullptr) return;
     check_circle_event(pos, y);
     check_circle_event(pos->prev(), y);
     check_circle_event(pos->next(), y);
-    /* ++cnt; */
-    if (cnt >= 40 && cnt <= 50) {
-        line.print_leaves();
-        std::cout << std::endl;
-    }
 }
 
 void beach_line::erase(event *evt)
 {
-    // TODO: set edges appropriately and mark voronoi vertex
-    /* std::cout << "voronoi vertex: " << evt->vertex << std::endl; */
-    auto bef = line.erase(evt->arc, evt->prio);
-
+    node* bef = line.erase(evt->arc, evt->prio);
     check_circle_event(bef, evt->prio);
     if (bef->next() != nullptr)
         check_circle_event(bef->next(), evt->prio);
-    /* ++cnt; */
-    if (cnt >= 40 && cnt <= 50) {
-        line.print_leaves();
-        std::cout << std::endl;
-    }
 }
 
 void beach_line::clean_up(const std::pair<pnt,pnt> &)
