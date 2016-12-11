@@ -33,7 +33,7 @@ clean:
 
 # Tests
 tester: 
-	$(CC) $(CFLAGS) test/tester.cpp src/kruskal.cpp $(INC) $(LIB) -o bin/tester
+	$(CC) $(CFLAGS) test/tester.cpp src/kruskal.cpp src/Fortunes.cpp src/beach_line.cpp src/node.cpp src/tree.cpp src/math/math.cpp src/DCEL/DCEL.cpp src/math/line.cpp $(INC) $(LIB) -o bin/tester
 
 # Spikes (miscallaneous items)
 ticket: 
