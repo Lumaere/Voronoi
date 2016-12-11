@@ -1,5 +1,3 @@
-#include <math/point.h>
-#include <math/line.h>
 #include <DCEL/DCEL.h>
 #include <Fortunes.h>
 #include <kruskal.h>
@@ -11,24 +9,21 @@
 #include <iomanip>
 #include <fstream>
 
-void test_point();
-void test_line();
 void test_voronoi1();
 void test_voronoi2();
 void test_voronoi3();
 
 int main(int argc, char ** argv)
 {
-    test_point();
-    test_line();
-    test_voronoi3();
+    test_voronoi2();
 }
 
 void test_voronoi1()
 {
     std::vector<point<double>> t 
         { {84, 125}, {36, 111}, {97, 125}, {82, 149}, {19, 153}, {61, 167}};
-    auto v = fortunes_algorithm(t);
+    DCEL* v = fortunes_algorithm(t);
+    v->print_dcel();
     std::vector<DCEL::half_edge*> holdE;
     std::tie(holdE,std::ignore,std::ignore) = v->to_vector();
     std::vector<std::pair<point<double>,point<double>>> out;
@@ -40,8 +35,7 @@ void test_voronoi1()
         s.insert(e);
         s.insert(e->twin);
     }
-    kruskal solver;
-    std::cout << solver.solve(out) << std::endl;
+    std::cout << kruskal::solve(out) << std::endl;
     delete v;
 }
 
@@ -66,7 +60,7 @@ void test_voronoi2()
         {181, 187}, {92,  74}, {85, 113}, {141,  90}, {52, 177}
     };
     auto v = fortunes_algorithm(t);
-    /* v->print_dcel({0,0}, {200,200}); */
+    v->print_dcel();
     std::vector<DCEL::half_edge*> holdE;
     std::tie(holdE,std::ignore,std::ignore) = v->to_vector();
     std::vector<std::pair<point<double>,point<double>>> out;
@@ -78,8 +72,7 @@ void test_voronoi2()
         s.insert(e);
         s.insert(e->twin);
     }
-    kruskal solver;
-    std::cout << solver.solve(out) << std::endl;
+    std::cout << kruskal::solve(out) << std::endl;
     delete v;
 }
 
@@ -104,36 +97,7 @@ void test_voronoi3()
         s.insert(e);
         s.insert(e->twin);
     }
-    kruskal solver;
-    std::cout << solver.solve(out) << std::endl;
+    std::cout << kruskal::solve(out) << std::endl;
     delete v;
-}
-
-void test_point()
-{
-    point<int> u (1, 2);
-    point<int> v (3, -1);
-    assert(u + v == point<int>(4, 1));
-    assert(u - v == point<int>(-2, 3));
-    assert(u * 3 == point<int>(3, 6));
-    assert(u * -3 == point<int>(-3, -6));
-    assert(u / -3 == point<int>(0, 0));
-    assert(u / 2 == point<int>(0, 1));
-    assert(u.dot(v) == 1);
-    assert(v.dot(u) == u.dot(v));
-    assert(u.det(v) == -7);
-    assert(v.det(u) == -u.det(v));
-    assert(u < v);
-}
-
-void test_line()
-{
-    point<int> u (1, 2);
-    point<int> v (3, -1);
-    line l (u, v);
-    assert(l.m == -1.5);
-    assert(l.b == 3.5);
-    assert(l.evalX(2) == 0.5);
-    assert(l.evalY(0.5) == 2);
 }
 

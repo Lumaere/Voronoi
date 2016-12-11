@@ -264,6 +264,24 @@ DCEL::half_edge* tree::add_endpoints(node *lftB, node *rhtB, node *arc)
     return ret;
 }
 
+void tree::finish_edges(double y)
+{
+    auto cur = root;
+    while (cur->left != nullptr)
+        cur = cur->left;
+    while (cur->next() != nullptr) {
+        auto inter = cur->rpar();
+        DCEL::half_edge* unfinished = inter->trace->tail == nullptr ? 
+            inter->trace : inter->trace->twin;
+        assert(unfinished->tail == nullptr);
+        double xi = parabola_intersection(inter->lsite->site,
+                inter->rsite->site, y);
+        unfinished->tail = diagram->vertex_factory(
+                pnt(xi, parabola_val(inter->lsite->site, y, xi)));
+        cur = cur->next();
+    }
+}
+
 void tree::print_tree(node *cur, int indent) const
 {
     if (cur != nullptr) {

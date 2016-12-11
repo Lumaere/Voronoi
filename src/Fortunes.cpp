@@ -2,18 +2,20 @@
 #include <event.h>
 #include <beach_line.h>
 
-#include <algorithm>
 #include <iostream>
 #include <queue>
-#include <cassert>
-
 
 DCEL* fortunes_algorithm(std::vector<point<double>> P)
 {
     std::priority_queue<event*,std::vector<event*>,compareEventPtr> q;
     beach_line line (q);
-    for (auto p : P)
+    double lo = std::numeric_limits<double>::infinity();
+    double hi = -std::numeric_limits<double>::infinity();
+    for (auto p : P) {
         q.push(new event(p.y,event::eventType::SITE,p));
+        lo = std::min(lo, p.y);
+        hi = std::max(hi, p.y);
+    }
 
     while (!q.empty()) {
         auto e = q.top();
@@ -27,6 +29,7 @@ DCEL* fortunes_algorithm(std::vector<point<double>> P)
         }
         delete e;
     }
+    line.clean_up((hi + (hi - lo)) * 2);
 
     return line.diagram;
 }

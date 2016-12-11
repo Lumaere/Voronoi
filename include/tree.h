@@ -23,6 +23,7 @@ public:
     node* insert(pnt p, double y);
     node* erase(node *arc, double y);
 
+    void finish_edges(double);
     /* print beach_line by arcs */
     void print_leaves() const;
     bool empty() const { return root == nullptr; }

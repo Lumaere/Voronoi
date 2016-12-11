@@ -28,7 +28,7 @@ public:
 
     // TODO: put bounding box and clean up edges
     // input: bottom left and top right corners of bounding box
-    void clean_up(const std::pair<pnt,pnt> &);
+    void clean_up(double);
 
     DCEL* diagram;
 private:

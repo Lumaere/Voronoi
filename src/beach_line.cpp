@@ -33,9 +33,9 @@ void beach_line::erase(event *evt)
         check_circle_event(bef->next(), evt->prio);
 }
 
-void beach_line::clean_up(const std::pair<pnt,pnt> &)
+void beach_line::clean_up(double y)
 {
-    line.print_leaves();
+    line.finish_edges(y);
 }
 
 void beach_line::check_circle_event(node *arc, double y)

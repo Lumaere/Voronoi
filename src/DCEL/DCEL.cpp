@@ -126,17 +126,10 @@ void DCEL::fix_faces()
             e->left->rep = e;
 }
 
-void DCEL::print_dcel(point<double> lower_left, point<double> upper_right) 
-    const
+void DCEL::print_dcel() const
 {
     for (auto e : edge_list) {
         if (e->tail == nullptr || e->twin->tail == nullptr) continue;
-        double x1 = e->tail->coordinates.x, y1 = e->tail->coordinates.y;
-        double x2 = e->twin->tail->coordinates.x, y2 = e->twin->tail->coordinates.y;
-        if (x1 < lower_left.x || x2 < lower_left.x || 
-                y1 < lower_left.y || y2 < lower_left.y) continue;
-        if (x1 > upper_right.x || x2 > upper_right.x || 
-                y1 > upper_right.y || y2 > upper_right.y) continue;
         std::cout << e->tail->coordinates.x << ' ' 
             << e->tail->coordinates.y << '\n'
             << e->twin->tail->coordinates.x << ' '
