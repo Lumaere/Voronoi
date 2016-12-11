@@ -1,42 +1,49 @@
 # Reference:
 # https://www.gnu.org/software/make/manual/make.html
-# 
+#
+# This makefile is largely from:
+# http://hiltmon.com/blog/2013/07/03/a-simple-c-plus-plus-project-structure/
+ 
+CC := g++ # This is the main compiler
+# CC := clang --analyze # and comment out the linker last line for sanity
+SRCDIR := src
+BUILDDIR := build
+TARGET := bin/voronoi
+ 
+SRCEXT := cpp
+SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+CFLAGS := -g -Wall -std=c++14 -DDEBUG
+LIB := 
+INC := -I include
 
-CC = g++
-LD = g++
+DIR_GUARD=@mkdir -p $(@D)
 
-CFLAGS = -pedantic-errors -std=c++14 -Wall -fno-elide-constructors
-LFLAGS = -pedantic-errors -Wall
-DFLAGS = -g -DDEBUG
-RFLAGS = -O3
+$(TARGET): $(OBJECTS) 
+	@echo " Linking..." 
+	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
 
-SOURCE_FILES = $(wildcard src/*.cpp) $(wildcard src/*/*.cpp)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT) 
+	$(DIR_GUARD)
+	@echo " $(CC) $(CFLAGS) $(INC) -c -MMD -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -MMD -o $@ $<
 
-OBJ = obj
-SRC = src
-BIN = bin
-EXECUTABLE_NAME = voronoi
+clean: 
+	@echo " Cleaning..."; 
+	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
 
-# Hopefully standard implementation below
+# Tests
+tester: 
+	$(CC) $(CFLAGS) test/tester.cpp src/kruskal.cpp $(INC) $(LIB) -o bin/tester
 
-OBJECT_FILES = $(addprefix $(OBJ)/,$(SOURCE_FILES:%.cpp=%.o))
-EXECUTABLE_FILES = $(addprefix $(BIN)/,$(EXECUTABLE_NAME))
-
-build: $(EXECUTABLE_FILES)
-
-$(EXECUTABLE_FILES): $(OBJECT_FILES)
-		$(LD) $(DFLAGS) $(LFLAGS) $^ -o $@
-
-$(OBJ)/src/%.o: $(SRC)/%.cpp
-		$(CC) $(DFLAGS) $(CFLAGS) -c -MMD $< -o $@
+# Spikes (miscallaneous items)
+ticket: 
+	$(CC) $(CFLAGS) spikes/ticket.cpp $(INC) $(LIB) -o bin/ticket
 
 .PHONY: clean
-clean:
-		rm -f $(OBJECT_FILES)
-		rm -f $(OBJECT_FILES:%.o=%.d)
-		rm -rf $(EXECUTABLE_FILES)*
 
-
--include $(OBJECT_FILES:%.o=%.d)
-
+# print variables for debugging
 print-%  : ; @echo $* = $($*)
+
+# create dependency files for object files
+-include $(OBJECTS:%.o=%.d)
+
