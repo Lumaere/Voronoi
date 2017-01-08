@@ -4,6 +4,8 @@
 
 #include <vector>
 #include <utility>
+#include <functional>
+#include <algorithm>
 
 namespace kruskal {
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Point.h"
+#include <math/point.h>
+#include <limits>
 
 /* represent line using slope and y-intercept
  * line struct is either segment or line and 'endpoints' are used

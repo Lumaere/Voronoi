@@ -52,10 +52,10 @@ std::tuple<double,double,double> parabola_equation(
         const pnt &focus, double directrix)
 {
     double coeff = 1 / (2 * (focus.y - directrix));
-    return {
+    return std::make_tuple(
         coeff, // a
         - coeff * 2 * focus.x, // b
         coeff * focus.x * focus.x + (focus.y + directrix) / 2 // c
-    };
+    );
 }
 

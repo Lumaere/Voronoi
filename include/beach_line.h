@@ -8,6 +8,7 @@
 
 #include <queue>
 #include <utility>
+#include <limits>
 
 class beach_line {
 public:
@@ -16,8 +17,8 @@ public:
     beach_line(std::priority_queue<event*,
             std::vector<event*>,compareEventPtr> &pq)
         : diagram{new DCEL},
-          pq{pq},
-          line(diagram)
+          pq(pq),
+          line{diagram}
     {}
 
     // handle site event

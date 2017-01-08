@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <queue>
+#include <limits>
 
 DCEL* fortunes_algorithm(std::vector<point<double>> P)
 {
